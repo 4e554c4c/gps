@@ -1,6 +1,8 @@
 using gps
 using LinearAlgebra
 using gps.Satellite
+const π=gps.π
+const pi=gps.π
 """
     satloc(sat, ℓ, t)
 Find the cartesian coordinates and time of the satellite such that its
@@ -8,21 +10,16 @@ broadcast at that location will reach coordinates `ℓ` at time `t`.
 """
 function satloc(sat::Sat, xv::Coordinates, tv::Real)::Tuple{Coordinates,<:Real}
     # This function should have a root at the time we desire
-    function f(t::Real)::Real
-        Δx = Satellite.position(sat,t)-xv
-        Δx⋅Δx-c^2*(tv-t)^2
-    end
+    # we use the "square root version" so the sped of light is not squared
+    f(t::Real)::Real = norm(Satellite.position(sat,t)-xv)-c*(tv-t)
     # We start our search at the current vehicle time, assuming it will be rather close
     # Furthermore our δ must be less than .01m/c in order to have 1cm accuracy
-    t = Newton.newton(f, tv, δ=BigFloat(.01)/c)
+    t = Newton.newton(f, tv, δ=.01/c)
     Satellite.position(sat, t), t
 end
 
-setprecision(128)
-
 for line in eachline()
-    parsedms(dms)::BigFloat =
-    parse(Int,dms[4])*dms2rad(parse.(Int,dms[1:2])...,parse(BigFloat,dms[3]))
+    parsedms(dms)::BigFloat = parse(Int,dms[4])*dms2rad(parse.(Int,dms[1:2])...,parse(BigFloat,dms[3]))
     splitline = split(line)
     t=parse(BigFloat, splitline[1])
     ψ=parsedms(splitline[2:5])

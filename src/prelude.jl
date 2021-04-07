@@ -50,7 +50,7 @@ Generates a 3d "roll" rotation matrix about the z axis by `α` radians
 rot_z(α::Real)::Matrix{<:Real} = [cos(α) -sin(α) 0; sin(α) cos(α) 0; 0 0 1]
 
 """
-   ll2cart(ψ, λ, h, t=0)
+    ll2cart(ψ, λ, h, t=0)
 Convert latitude, longitude, height and time to (x,y,z) coordinates
 """
 ll2cart(ψ::Real, λ::Real, h::Real, t::Real=0.0)::Vector{Real} = rot_z(2π*t/s)*[cos(ψ)cos(λ),cos(ψ)sin(λ),sin(ψ)].*(R+h)

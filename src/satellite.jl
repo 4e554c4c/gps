@@ -2,6 +2,11 @@ module Satellite
 using gps
 const π = gps.π
 
+"""
+    Sat(u,v,p,a,θ)
+A satellite with an orbit of periodicity `p`, altitude `a`, phase `θ` such that
+at time zero the position of the satellite is ``\\mathbf{u}\\cos(θ)+\\mathbf{v}\\sin(θ)``
+"""
 struct Sat
     u::Coordinates
     v::Coordinates
@@ -47,7 +52,7 @@ export Sat, satellites, position
 Returns the position of the satellite `s` at time `t`.
 """
 function position(s::Sat, t::Real)::Coordinates
-    α=2*π*t/s.p+s.θ
+    α=(2π*t/s.p)+s.θ
     (R+s.h)*(cos(α)*s.u+sin(α)*s.v)
 end
 

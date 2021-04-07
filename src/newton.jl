@@ -10,8 +10,10 @@ By default `δ` is the machine epsilon of the output type at `1` of `f` and `Δf
 automatic differentiation of `f`. These assume that `f` is a real-valued function.
 """
 function newton(f::Function, x; Δf::Function=f', δ=eps(typeof(f(x))))
-    while (abs(x)<δ)
+    while true
+        last = x
         x = x-f(x)/Δf(x)
+        (abs(x-last)≥δ) || break
     end
     x
 end
