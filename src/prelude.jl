@@ -8,25 +8,23 @@ Validate all coordinates as being elements of ℝ^3
 """
 function validatecoords(coords::Coordinates...)
     for c in coords
-        if length(c) != 3
-            throw(DimensionMismatch(("Coordinates needs to be a length 3 vector")))
-        end
+        @assert (length(c) ≡ 3) "Coordinates needs to be a length 3 vector"
     end
 end
 
 """
-    dms2rad(d, m, s)
-Given degrees, minutes and seconds of an angle convert to a radian value.
+    dms2rad(d, m=0, s=0, σ=1)
+Given degrees, minutes, seconds and sign of an angle convert to a radian value.
 
 The inverse of `rad2dms`.
 """
-function dms2rad(d::Integer, m::Integer=0, s::Real=0)::Real
+function dms2rad(d::Integer, m::Integer=0, s::Real=0, σ::Integer=1)::Real
     if m >= 60
         error("m > 60");
     elseif s >= 60
         error("s > 60");
     end
-    (d + (m + s / 60) / 60)*2*π/360
+    σ*(d + (m + s / 60) / 60)*2π/360
 end
 
 """
@@ -35,11 +33,16 @@ Given a radian value convert to degrees, minutes and seconds.
 
 The inverse of `dms2rad`.
 """
-function rad2dms(α::Real)::Tuple{Integer,Integer,Real}
+function rad2dms(α::Real)::Tuple{Integer,Integer,Real,Integer}
+    σ=1
+    if α < 0
+        α=-α
+        σ=-1
+    end
     α = α*360/(2*π)
     d = Int(floor(α))
     m = Int(floor((α-d)*60))
-    (d,m,(((α-d)*60-m)*60))
+    (d,m,(((α-d)*60-m)*60),σ)
 end
 
 # TODO use Givens?
@@ -53,7 +56,7 @@ rot_z(α::Real)::Matrix{<:Real} = [cos(α) -sin(α) 0; sin(α) cos(α) 0; 0 0 1]
     ll2cart(ψ, λ, h, t=0)
 Convert latitude, longitude, height and time to (x,y,z) coordinates
 """
-ll2cart(ψ::Real, λ::Real, h::Real, t::Real=0.0)::Vector{Real} = rot_z(2π*t/s)*[cos(ψ)cos(λ),cos(ψ)sin(λ),sin(ψ)].*(R+h)
+ll2cart(ψ::Real, λ::Real, h::Real, t::Real=0.0)::Coordinates = rot_z(2π*t/s)*[cos(ψ)cos(λ),cos(ψ)sin(λ),sin(ψ)].*(R+h)
 
 """
     cart2ll(coords, t=0)

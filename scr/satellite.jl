@@ -1,8 +1,9 @@
 using gps
 using LinearAlgebra
 using gps.Satellite
+import gps.Parse
 const π=gps.π
-const pi=gps.π
+
 """
     satloc(sat, ℓ, t)
 Find the cartesian coordinates and time of the satellite such that its
@@ -19,18 +20,11 @@ function satloc(sat::Sat, xv::Coordinates, tv::Real)::Tuple{Coordinates,<:Real}
 end
 
 for line in eachline()
-    parsedms(dms)::BigFloat = parse(Int,dms[4])*dms2rad(parse.(Int,dms[1:2])...,parse(BigFloat,dms[3]))
-    splitline = split(line)
-    t=parse(BigFloat, splitline[1])
-    ψ=parsedms(splitline[2:5])
-    λ=parsedms(splitline[6:9])
-    h=parse(BigFloat, splitline[10])
-    #println(line, " → ", (t,ψ,λ,h))
-    ℓ = ll2cart(ψ,λ,h,t)
+    ℓ = ll2cart(Parse.latlong(line)...)
     for (is, sat) in enumerate(Satellite.satellites)
         xs, ts = satloc(sat, ℓ, t)
         if abovehorizon(ℓ, xs)
-            println(is-1, ' ', ts, ' ', xs[1], ' ', xs[2], ' ', xs[3]) 
+            println("$(is-1) $ts $(xs[1]) $(xs[2]) $(xs[3])") 
         end
     end
 end

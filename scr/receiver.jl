@@ -1,11 +1,12 @@
 using gps
 using LinearAlgebra
-using LeastSquares
+using gps.LeastSquares
+import gps.Parse
 #using gps.Satellite
 const π=gps.π
 const pi=gps.π
 
-xvguess = b12
+xvguess = ll2cart(b12...)
 #==
  = We deliminate epochs in the following method:
  = as long as long as our satellite input is increasing we assume that we are
@@ -17,13 +18,13 @@ xvguess = b12
  =#
 lastsat = 0
 
-function parseline(line::String)::Tuple{Integer, Real, Coordinates, String}
-    spl = split(line)
-    parse(Int, spl[1]), BigFloat(spl[2]), BigFloat.(spl[3:end]), line
-end
-
-lines = map(parseline, readlines())
+lines = map(Parse.satline, readlines())
 i=1
+
+function dmsfmt(α::Real)::String
+    d, m, s, σ = rad2dms(α)
+    "$d $m $s $σ"
+end
 
 while i≤length(lines)
     # find the end of the epoch
@@ -42,32 +43,30 @@ while i≤length(lines)
     # We need to define some function to minimize with least squares. The case
     # with ≤4 satellites can be considered a degenerate form of this.
     # In particular our F is 3x(j-i-1) dimensional with 
-    F(x)=[norm(sn[3]-x)-norm(s[3]-x)-c*(s[2]-sn[2]) for (s,sn) in zip(sats, sats[begin+1:end])]
+    #function Fopt(x::Coordinates)::Coordinates
+    #    [norm(sn[3]-x)-norm(s[3]-x)-c*(s[2]-sn[2])
+    #     for (s,sn) in zip(sats, sats[begin+1:end])]
+    #end
+    #we can also solve with time as an unknown, 
+    function Fopt(is::Vector{<:Real})::Coordinates
+        t, x =is[begin], is[begin+1:end]
+        [norm(x-s[3])-c*(t-s[2]) for s in sats]
+    end
 
     # Now get some minimum from least squares. We only need .01m accuracy.
-    x = leastsquares(F, xvguess; δ=.01)
+    # but we need t in .01/c accuracy. Thus we need to solve the entire system
+    # to that accuracy.
+    min = leastsquares(Fopt, [sats[1][2], xvguess...]; δ=.001/c)
+    t, x = min[begin], min[begin+1:end]
 
     # We also need the time, but this is easy to get from our system.
-    # Assuming we have at least one satellite...
-    t = (norm(x-sats[1][3])+sats[1][2])/c
+    # since t = (norm(x-sats[1][3])+sats[1][2])/c. However, this isn't accurate
+    # enough, since we need an error in `t`
 
     # Now go back from Cartesian to dms+h coordinates
-    ψ, λ, h = cart2ll(x, t=t)
-    
-    #splitline = split(line)
-    #t=parse(BigFloat, splitline[1])
-    #ψ=parsedms(splitline[2:5])
-    #λ=parsedms(splitline[6:9])
-    #h=parse(BigFloat, splitline[10])
-    ##println(line, " → ", (t,ψ,λ,h))
-    #ℓ = ll2cart(ψ,λ,h,t)
-    #for (is, sat) in enumerate(Satellite.satellites)
-    #    xs, ts = satloc(sat, ℓ, t)
-    #    if abovehorizon(ℓ, xs)
-    #        println(is-1, ' ', ts, ' ', xs[1], ' ', xs[2], ' ', xs[3]) 
-    #    end
-    #end
-    # now we want a new location guess with our current location.
+    ψ, λ, h = cart2ll(x, t)
+    println("$t $(dmsfmt(ψ)) $(dmsfmt(λ)) $h")
+
     global xvguess = x
     global lastsat=0
     global i=j+1

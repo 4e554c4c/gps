@@ -4,11 +4,13 @@
     @test_throws DimensionMismatch validatecoords([1,2,3,4])
 
     @test dms2rad(90) ≈ π/2
-    @test dms2rad(180,0,0) ≈ pi
+    @test dms2rad(90,0,0,-1) ≈ -π/2
+    @test dms2rad(180,0,0) ≈ π
     @test dms2rad(90,0,1) ≈ π/2 atol=1e-5
     @test dms2rad(rad2dms(2*π/3)...)≈ 2*π/3 atol=1e-5
     # property we'd like. ∀x=(d,m,s) we want all(rad2dms(dms2rad(x...)) .≈ x)
-    @test all(isapprox.(rad2dms(dms2rad(3,0,12)), (3,0,12.0), atol=1e-5))
+    @test all(isapprox.(rad2dms(dms2rad(3,0,12)), (3,0,12.0, 1), atol=1e-5))
+    @test all(isapprox.(rad2dms(dms2rad(3,0,12,-1)), (3,0,12.0,-1), atol=1e-5))
     # at time t=0 we should be able to convert to cartesian coordinates and back
     # property we'd like. ∀x=(ψ,λ,h),t we want all(cart2ll(ll2cart(x...,t),t) .≈ x)
     @test all(isapprox.(cart2ll(ll2cart(b12...)), b12, atol=1e-10))
