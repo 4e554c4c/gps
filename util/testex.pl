@@ -16,6 +16,7 @@ say("Temp file: $dir");
 
 foreach my $bm (glob("$handout/*.dat")){
     my $base = basename($bm);
+    next if ($base eq "data.dat");
     say("Testing file: $base");
     system("java vehicle < $bm > $dir/$base.vehicle.out");
     # run sats
