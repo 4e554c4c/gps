@@ -16,7 +16,7 @@ xvguess = ll2cart(b12...)
  = epoch 1 has 4,5,6. But we assume that satellite changes occur continuously
  = enough that this cannot be the case.
  =#
-lastsat = 0
+lastsat = -1
 
 lines = map(Parse.satline, readlines())
 i=1
@@ -68,6 +68,6 @@ while i≤length(lines)
     println("$t $(dmsfmt(ψ)) $(dmsfmt(λ)) $h")
 
     global xvguess = x
-    global lastsat=0
+    global lastsat=-1
     global i=j+1
 end
