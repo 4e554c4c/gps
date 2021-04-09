@@ -1,11 +1,11 @@
 @testset "prelude.jl" begin
-    @test_throws DimensionMismatch validatecoords([1])
+    @test_throws AssertionError validatecoords([1])
     @test validatecoords([1,2,3]) === nothing
-    @test_throws DimensionMismatch validatecoords([1,2,3,4])
+    @test_throws AssertionError validatecoords([1,2,3,4])
 
     @test dms2rad(90) ≈ π/2
     @test dms2rad(90,0,0,-1) ≈ -π/2
-    @test dms2rad(180,0,0) ≈ π
+    @test dms2rad(180,0,0) ≈ π atol=1e-10
     @test dms2rad(90,0,1) ≈ π/2 atol=1e-5
     @test dms2rad(rad2dms(2*π/3)...)≈ 2*π/3 atol=1e-5
     # property we'd like. ∀x=(d,m,s) we want all(rad2dms(dms2rad(x...)) .≈ x)
