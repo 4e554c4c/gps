@@ -9,8 +9,8 @@ if length(ARGS) ≠ 2
     exit(-1)
 end
 
-ref = map(ℓ->(Parse.parseline(ℓ), ℓ), readlines(ARGS[1]))
-tst = map(ℓ->(Parse.parseline(ℓ), ℓ), readlines(ARGS[2]))
+ref = map(ℓ->(Parse.satline(ℓ), ℓ), readlines(ARGS[1]))
+tst = map(ℓ->(Parse.satline(ℓ), ℓ), readlines(ARGS[2]))
 
 for (lnum, ((l1, l1v), (l2, l2v))) in enumerate(zip(ref,tst))
     println("testing line ", lnum, ":", l1v)

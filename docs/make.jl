@@ -11,7 +11,7 @@ makedocs(
 # Documenter can also automatically deploy documentation to gh-pages.
 # See "Hosting Documentation" and deploydocs() in the Documenter manual
 # for more information.
-#deploydocs(
-#    repo = "github.com/coleschon/gps.git",
-#    devbranch = "main"
-#)
+deploydocs(
+    repo = "github.com/4e554c4c/gps.git",
+    devbranch = "main"
+)

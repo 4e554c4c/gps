@@ -20,6 +20,7 @@ function satloc(sat::Sat, xv::Coordinates, tv::Real)::Tuple{Coordinates,<:Real}
 end
 
 for line in eachline()
+    _, _, _, t = Parse.latlong(line)
     ℓ = ll2cart(Parse.latlong(line)...)
     for (is, sat) in enumerate(Satellite.satellites)
         xs, ts = satloc(sat, ℓ, t)
